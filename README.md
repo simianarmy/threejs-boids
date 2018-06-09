@@ -1,2 +1,3 @@
 # threejs-boids
-Attempt at GPU boids in Three.js
+
+My attempt at GPU-rendered boids without looking at examples

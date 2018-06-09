@@ -1,0 +1,25 @@
+{
+  "name": "threejs-boids",
+  "version": "1.0.0",
+  "description": "GPU boids attempt",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/simianarmy/threejs-boids.git"
+  },
+  "keywords": [
+    "three.js",
+    "webgl",
+    "3d",
+    "graphics"
+  ],
+  "author": "Marc Mauger",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/simianarmy/threejs-boids/issues"
+  },
+  "homepage": "https://github.com/simianarmy/threejs-boids#readme"
+}
