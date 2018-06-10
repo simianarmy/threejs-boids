@@ -9,16 +9,9 @@ var velocity = new THREE.Vector3();
 var direction = new THREE.Vector3();
 var blocker = document.getElementById( 'blocker' );
 var instructions = document.getElementById( 'instructions' );
-var birdUniforms;
 
-import skyposx1 from './images/skyposx1.png';
-import skynegx1 from './images/skynegx1.png';
-import skyposy1 from './images/skyposy1.png';
-import skynegy1 from './images/skynegy1.png';
-import skyposz1 from './images/skyposz1.png';
-import skynegz1 from './images/skynegz1.png';
-
-console.log('skyposx1 filename = ', skyposx1);
+import { initSkybox } from './skybox.js';
+import { initBoids } from './boids.js';
 
 var havePointerLock = 'pointerLockElement' in document || 'mozPointerLockElement' in document || 'webkitPointerLockElement' in document;
 if ( havePointerLock ) {
@@ -57,30 +50,6 @@ init();
 animate();
 
 function init() {
-
-    function initBirds() {
-        var geometry = new THREE.BirdGeometry();
-        // For Vertex and Fragment
-        birdUniforms = {
-            color: { value: new THREE.Color( 0xff2200 ) },
-            texturePosition: { value: null },
-            textureVelocity: { value: null },
-            time: { value: 1.0 },
-            delta: { value: 0.0 }
-        };
-        // ShaderMaterial
-        var material = new THREE.ShaderMaterial( {
-            uniforms:       birdUniforms,
-            vertexShader:   document.getElementById( 'birdVS' ).textContent,
-            fragmentShader: document.getElementById( 'birdFS' ).textContent,
-            side: THREE.DoubleSide
-        });
-        var birdMesh = new THREE.Mesh( geometry, material );
-        birdMesh.rotation.y = Math.PI / 2;
-        birdMesh.matrixAutoUpdate = false;
-        birdMesh.updateMatrix();
-        scene.add(birdMesh);
-    }
 
     scene = new THREE.Scene();
 
@@ -129,26 +98,8 @@ function init() {
     var floor = new THREE.Mesh( floorGeometry, floorMaterial );
     scene.add( floor );
 
-    ////////////
-    // skybox //
-    ////////////
-    var materialArray = [];
-    materialArray.push(new THREE.MeshBasicMaterial( { map: THREE.ImageUtils.loadTexture( skyposx1 ) }));
-    materialArray.push(new THREE.MeshBasicMaterial( { map: THREE.ImageUtils.loadTexture( skynegx1 ) }));
-    materialArray.push(new THREE.MeshBasicMaterial( { map: THREE.ImageUtils.loadTexture( skyposy1 ) }));
-    materialArray.push(new THREE.MeshBasicMaterial( { map: THREE.ImageUtils.loadTexture( skynegy1 ) }));
-    materialArray.push(new THREE.MeshBasicMaterial( { map: THREE.ImageUtils.loadTexture( skyposz1 ) }));
-    materialArray.push(new THREE.MeshBasicMaterial( { map: THREE.ImageUtils.loadTexture( skynegz1 ) }));
-
-    for (var i = 0; i < 6; i++) {
-        materialArray[i].side = THREE.BackSide;
-    }
-    var skyboxMaterial = new THREE.MeshFaceMaterial( materialArray );
-    var skyboxGeom = new THREE.BoxGeometry( 5000, 5000, 5000, 1, 1, 1 );
-    var skybox = new THREE.Mesh( skyboxGeom, skyboxMaterial );
-    scene.add( skybox );
-
-    //initBirds();
+    initSkybox(scene);
+    //initBirds(scene);
 
     ///////////////
     // controls ///
@@ -224,4 +175,4 @@ function animate() {
 
 function render() {
     renderer.render(scene, camera);
-    }
+}
