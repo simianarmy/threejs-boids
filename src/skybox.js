@@ -1,3 +1,4 @@
+//import * as THREE from 'three';
 import skyposx1 from './images/skyposx1.png';
 import skynegx1 from './images/skynegx1.png';
 import skyposy1 from './images/skyposy1.png';
@@ -10,12 +11,13 @@ import skynegz1 from './images/skynegz1.png';
 ////////////
 export const initSkybox = (scene) => {
     var materialArray = [];
-    materialArray.push(new THREE.MeshBasicMaterial( { map: THREE.ImageUtils.loadTexture( skyposx1 ) }));
-    materialArray.push(new THREE.MeshBasicMaterial( { map: THREE.ImageUtils.loadTexture( skynegx1 ) }));
-    materialArray.push(new THREE.MeshBasicMaterial( { map: THREE.ImageUtils.loadTexture( skyposy1 ) }));
-    materialArray.push(new THREE.MeshBasicMaterial( { map: THREE.ImageUtils.loadTexture( skynegy1 ) }));
-    materialArray.push(new THREE.MeshBasicMaterial( { map: THREE.ImageUtils.loadTexture( skyposz1 ) }));
-    materialArray.push(new THREE.MeshBasicMaterial( { map: THREE.ImageUtils.loadTexture( skynegz1 ) }));
+    let loader = new THREE.TextureLoader();
+    materialArray.push(new THREE.MeshBasicMaterial( { map: loader.load( skyposx1 ) }));
+    materialArray.push(new THREE.MeshBasicMaterial( { map: loader.load( skynegx1 ) }));
+    materialArray.push(new THREE.MeshBasicMaterial( { map: loader.load( skyposy1 ) }));
+    materialArray.push(new THREE.MeshBasicMaterial( { map: loader.load( skynegy1 ) }));
+    materialArray.push(new THREE.MeshBasicMaterial( { map: loader.load( skyposz1 ) }));
+    materialArray.push(new THREE.MeshBasicMaterial( { map: loader.load( skynegz1 ) }));
 
     for (var i = 0; i < 6; i++) {
         materialArray[i].side = THREE.BackSide;

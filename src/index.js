@@ -1,3 +1,7 @@
+//import * as THREE from 'three';
+import { initSkybox } from './skybox.js';
+import { initBoids } from './boids.js';
+
 var scene, camera, renderer, controls, raycaster;
 var controlsEnabled = false;
 var moveForward = false;
@@ -9,9 +13,6 @@ var velocity = new THREE.Vector3();
 var direction = new THREE.Vector3();
 var blocker = document.getElementById( 'blocker' );
 var instructions = document.getElementById( 'instructions' );
-
-import { initSkybox } from './skybox.js';
-import { initBoids } from './boids.js';
 
 var havePointerLock = 'pointerLockElement' in document || 'mozPointerLockElement' in document || 'webkitPointerLockElement' in document;
 if ( havePointerLock ) {
@@ -99,7 +100,7 @@ function init() {
     scene.add( floor );
 
     initSkybox(scene);
-    //initBirds(scene);
+    initBoids(scene);
 
     ///////////////
     // controls ///

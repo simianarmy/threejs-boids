@@ -1,3 +1,5 @@
+//import * as THREE from 'three';
+
 // Custom Geometry - using 3 triangles each. No UVs, no normals currently.
 THREE.BirdGeometry = function (count) {
     var triangles = count * 3;
