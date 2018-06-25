@@ -1,19 +1,27 @@
 //import * as THREE from 'three';
+import { WIDTH, NUM_BIRDS } from './globals';
 
 // Custom Geometry - using 3 triangles each. No UVs, no normals currently.
-THREE.BirdGeometry = function (count) {
-    var triangles = count * 3;
-    var points = triangles * 3;
+// @inherits {THREE.BufferGeometry}
+//
+THREE.BirdGeometry = function () {
     THREE.BufferGeometry.call( this );
+
+    const count = NUM_BIRDS;
+    const triangles = count * 3;
+    const points = triangles * 3;
+
     var vertices = new THREE.BufferAttribute( new Float32Array( points * 3 ), 3 );
     var birdColors = new THREE.BufferAttribute( new Float32Array( points * 3 ), 3 );
     var references = new THREE.BufferAttribute( new Float32Array( points * 2 ), 2 );
     var birdVertex = new THREE.BufferAttribute( new Float32Array( points ), 1 );
+
     this.addAttribute( 'position', vertices );
     this.addAttribute( 'birdColor', birdColors );
     this.addAttribute( 'reference', references );
     this.addAttribute( 'birdVertex', birdVertex );
     // this.addAttribute( 'normal', new Float32Array( points * 3 ), 3 );
+    //
     var v = 0;
     function verts_push() {
         for (var i=0; i < arguments.length; i++) {

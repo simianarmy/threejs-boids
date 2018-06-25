@@ -2,22 +2,18 @@
 attribute vec2 reference;
 attribute float birdVertex;
 attribute vec3 birdColor;
-/*
-   uniform sampler2D texturePosition;
-   uniform sampler2D textureVelocity;
- */
+uniform sampler2D texturePosition;
+uniform sampler2D textureVelocity;
 varying vec4 vColor;
 varying float z;
 uniform float time;
-void main() {
-    vec3 newPosition = position;
 
-    /*
-       vec4 tmpPos = texture2D( texturePosition, reference );
-       vec3 pos = tmpPos.xyz;
-       vec3 velocity = normalize(texture2D( textureVelocity, reference ).xyz);
-       vec3 newPosition = position;
-       if ( birdVertex == 4.0 || birdVertex == 7.0 ) {
+void main() {
+    vec4 tmpPos = texture2D( texturePosition, reference );
+    vec3 pos = tmpPos.xyz;
+    vec3 velocity = normalize(texture2D( textureVelocity, reference ).xyz);
+    vec3 newPosition = position;
+    if ( birdVertex == 4.0 || birdVertex == 7.0 ) {
     // flap wings
     newPosition.y = sin( tmpPos.w ) * 5.;
     }
@@ -43,7 +39,6 @@ void main() {
     newPosition =  maty * matz * newPosition;
     newPosition += pos;
     z = newPosition.z;
-     */
 
     vColor = vec4( birdColor, 1.0 );
     gl_Position = projectionMatrix *  viewMatrix  * vec4( newPosition, 1.0 );
