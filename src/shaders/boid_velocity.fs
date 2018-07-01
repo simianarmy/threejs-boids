@@ -8,7 +8,7 @@ uniform float seperationDistance; // 20
 uniform float alignmentDistance; // 40
 uniform float cohesionDistance; //
 uniform float freedomFactor;
-uniform vec3 predator;
+/*uniform vec3 predator;*/
 
 void main() {
     vec2 uv = gl_FragCoord.xy / resolution.xy;

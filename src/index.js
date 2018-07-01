@@ -6,7 +6,7 @@ import { controlsEnabled,
     initControls,
     animate as controlsAnimate } from './controls.js';
 import { initGPUComputeRenderer, GPUCompute } from './gpucomputer.js';
-import { WIDTH } from './globals.js';
+import { WORLD_WIDTH, WIDTH } from './globals.js';
 
 var scene, camera, renderer, controls, raycaster, birdMesh;
 
@@ -20,8 +20,8 @@ function init() {
     ////////////
     // camera //
     ////////////
-    camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 10000);
-    //camera.position.set(0, 100, 200);
+    camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, WORLD_WIDTH);
+    camera.position.set(0, 0, 350);
     //camera.up.set( 0, 1, 0);
     //camera.lookAt(scene.position);
 
@@ -33,7 +33,7 @@ function init() {
     renderer.setSize ( window.innerWidth, window.innerHeight );
     document.body.appendChild( renderer.domElement );
 
-    //var axes = new THREE.AxisHelper(100);
+    var axes = new THREE.AxisHelper(100);
     //scene.add(axes);
 
     ////////////////
@@ -43,7 +43,7 @@ function init() {
 
     controls = initControls(scene, camera);
     initSkybox(scene);
-    initFloor(scene);
+    //initFloor(scene);
     birdMesh = initBoids(scene);
 
     initGPUComputeRenderer(WIDTH, WIDTH, renderer);

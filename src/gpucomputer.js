@@ -8,7 +8,6 @@ var velocityVariable;
 var positionVariable;
 var positionUniforms;
 var velocityUniforms;
-var birdUniforms;
 var last = performance.now();
 
 const velocityFragmentShader = require('raw-loader!glslify-loader!./shaders/boid_velocity.fs');
@@ -36,16 +35,16 @@ export const initGPUComputeRenderer = (width, height, renderFn) => {
     positionUniforms = positionVariable.material.uniforms;
     velocityUniforms = velocityVariable.material.uniforms;
 
-    positionUniforms.time = { value: 0.0 };
-    positionUniforms.delta = { value: 0.0 };
-    velocityUniforms.time = { value: 1.0 };
-    velocityUniforms.delta = { value: 0.0 };
-    velocityUniforms.testing = { value: 1.0 };
-    velocityUniforms.seperationDistance = { value: 1.0 };
-    velocityUniforms.alignmentDistance = { value: 1.0 };
-    velocityUniforms.cohesionDistance = { value: 1.0 };
-    velocityUniforms.freedomFactor = { value: 1.0 };
-    velocityUniforms.predator = { value: new THREE.Vector3() };
+    positionUniforms.time = { type: "f", value: 0.0 };
+    positionUniforms.delta = { type: "f", value: 0.0 };
+    velocityUniforms.time = { type: "f", value: 1.0 };
+    velocityUniforms.delta = { type: "f", value: 0.0 };
+    velocityUniforms.testing = { type: "f", value: 1.0 };
+    velocityUniforms.seperationDistance = { type: "f", value: 1.0 };
+    velocityUniforms.alignmentDistance = { type: "f", value: 1.0 };
+    velocityUniforms.cohesionDistance = { type: "f", value: 1.0 };
+    velocityUniforms.freedomFactor = { type: "f", value: 1.0 };
+    //velocityUniforms.predator = { type: "v3v", value: new THREE.Vector3() };
     velocityVariable.material.defines.BOUNDS = BOUNDS.toFixed( 2 );
 
     // ???

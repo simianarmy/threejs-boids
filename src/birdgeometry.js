@@ -49,8 +49,10 @@ THREE.BirdGeometry = function () {
             0, 0, -15
         );
     }
-    for( var v = 0; v < triangles * 3; v++ ) {
+    for( var v = 0; v < points; v++ ) {
+      // a bunch of magic shit here
         var i = ~~(v / 3);
+      // wot r these?
         var x = (i % WIDTH) / WIDTH;
         var y = ~~(i / WIDTH) / WIDTH;
         var c = new THREE.Color(
@@ -60,8 +62,10 @@ THREE.BirdGeometry = function () {
         birdColors.array[ v * 3 + 0 ] = c.r;
         birdColors.array[ v * 3 + 1 ] = c.g;
         birdColors.array[ v * 3 + 2 ] = c.b;
+      // wot?
         references.array[ v * 2     ] = x;
         references.array[ v * 2 + 1 ] = y;
+      // huh?
         birdVertex.array[ v         ] = v % 9;
     }
     this.scale( 0.2, 0.2, 0.2 );

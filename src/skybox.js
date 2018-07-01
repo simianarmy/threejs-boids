@@ -23,7 +23,7 @@ export const initSkybox = (scene) => {
         materialArray[i].side = THREE.BackSide;
     }
     var skyboxMaterial = new THREE.MeshFaceMaterial( materialArray );
-    var skyboxGeom = new THREE.BoxGeometry( 5000, 5000, 5000, 1, 1, 1 );
+    var skyboxGeom = new THREE.BoxGeometry( 3000, 3000, 3000, 1, 1, 1 );
     var skybox = new THREE.Mesh( skyboxGeom, skyboxMaterial );
     scene.add( skybox );
 };

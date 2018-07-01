@@ -8,11 +8,11 @@ export const initBoids = (scene) => {
     var geometry = new THREE.BirdGeometry();
     // For Vertex and Fragment
     var birdUniforms = {
-        color: { value: new THREE.Color( 0xff2200 ) },
-        texturePosition: { value: null },
-        textureVelocity: { value: null },
-        time: { value: 1.0 },
-        delta: { value: 0.0 }
+        color: { type: "c", value: new THREE.Color( 0xff2200 ) },
+        texturePosition: { type: "t", value: null },
+        textureVelocity: { type: "t", value: null },
+        time: { type: "f", value: 1.0 },
+        delta: { type: "f", value: 0.0 }
     };
     // ShaderMaterial
     var material = new THREE.ShaderMaterial( {
