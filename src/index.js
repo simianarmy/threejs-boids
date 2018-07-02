@@ -21,7 +21,7 @@ function init() {
     // camera //
     ////////////
     camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, WORLD_WIDTH);
-    camera.position.set(0, 0, 350);
+    camera.position.set(0, 100, 350);
     //camera.up.set( 0, 1, 0);
     //camera.lookAt(scene.position);
 
@@ -43,7 +43,7 @@ function init() {
 
     controls = initControls(scene, camera);
     initSkybox(scene);
-    //initFloor(scene);
+    initFloor(scene);
     birdMesh = initBoids(scene);
 
     initGPUComputeRenderer(WIDTH, WIDTH, renderer);
@@ -55,13 +55,10 @@ function animate() {
     if ( controlsEnabled ) {
         controlsAnimate(controls);
     }
+    GPUCompute(birdMesh.material.uniforms);
     render();
 }
 
 function render() {
-    let birdUniforms = birdMesh.material.uniforms;
-
-    GPUCompute(birdUniforms);
-
     renderer.render(scene, camera);
 }

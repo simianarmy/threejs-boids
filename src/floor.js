@@ -1,8 +1,10 @@
 ////////////
 // cool floor  //
 ////////////
+import { WORLD_WIDTH } from './globals.js';
+
 export const initFloor = (scene) => {
-    var floorGeometry = new THREE.PlaneGeometry( 2000, 2000, 100, 100 );
+    var floorGeometry = new THREE.PlaneGeometry( WORLD_WIDTH, WORLD_WIDTH, 100, 100 );
 
     floorGeometry.rotateX( - Math.PI / 2 );
     for ( var i = 0, l = floorGeometry.vertices.length; i < l; i ++ ) {
