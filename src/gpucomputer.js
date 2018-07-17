@@ -58,6 +58,8 @@ export const initGPUComputeRenderer = (width, height, renderFn) => {
     if ( error !== null ) {
         console.error( error );
     }
+
+  return { positionUniforms, velocityUniforms };
 };
 
 export const GPUCompute = (birdUniforms) => {

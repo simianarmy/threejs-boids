@@ -20,7 +20,7 @@ function init() {
     ////////////
     // camera //
     ////////////
-    camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, WORLD_WIDTH);
+    camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 100, WORLD_WIDTH);
     camera.position.set(0, 100, 350);
     //camera.up.set( 0, 1, 0);
     //camera.lookAt(scene.position);
@@ -46,7 +46,13 @@ function init() {
     initFloor(scene);
     birdMesh = initBoids(scene);
 
-    initGPUComputeRenderer(WIDTH, WIDTH, renderer);
+    let { positionUniforms, velocityUniforms } = initGPUComputeRenderer(WIDTH, WIDTH, renderer);
+
+    document.querySelector('#separation').addEventListener('change', ev => {
+      //console.log('separation change', ev.target.value);
+      velocityUniforms.seperationDistance.value = Number(ev.target.value);
+      console.log('new separation distance', velocityUniforms.seperationDistance.value);
+    });
 }
 
 function animate() {
