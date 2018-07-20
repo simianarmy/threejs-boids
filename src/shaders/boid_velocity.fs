@@ -8,7 +8,7 @@ uniform float seperationDistance; // 20
 uniform float alignmentDistance; // 40
 uniform float cohesionDistance; //
 uniform float freedomFactor;
-/*uniform vec3 predator;*/
+uniform vec3 wind;
 
 const float width = resolution.x;
 const float height = resolution.y;
@@ -17,14 +17,17 @@ const float numBoids = width * height;
 const float PI = 3.141592653589793;
 const float PI_2 = PI * 2.0;
 
-const float SPEED_LIMIT = 4.0;
-const float xMin = -2000.0;
-const float xMax = 2000.0;
-const float yMin = -500.0;
+const float SPEED_LIMIT = 9.0;
+const float xMin = -1500.0;
+const float xMax = 1500.0;
+const float yMin = 40.0;
 const float yMax = 1000.0;
-const float zMin = -300.0;
+const float zMin = -200.0;
 const float zMax = 300.0;
 const float boundOffset = 40.0;
+
+float zoneRadius, zoneRadiusSquared;
+float separationThreshold;
 
 float rand(vec2 co){
   return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453);
@@ -58,6 +61,9 @@ void main() {
   vec2 uv = gl_FragCoord.xy / resolution.xy;
   vec3 birdPosition, birdVelocity;
 
+  zoneRadius = seperationDistance + alignmentDistance + cohesionDistance;
+  zoneRadiusSquared = zoneRadius * zoneRadius;
+
   vec3 selfPosition = texture2D( texturePosition, uv ).xyz;
   vec3 selfVelocity = texture2D( textureVelocity, uv ).xyz;
 
@@ -66,7 +72,11 @@ void main() {
   vec3 sep = vec3(.0, .0, .0);
   vec3 allVelocity = vec3(.0, .0, .0);
   vec3 dir;
-  float dist;
+  float dist, distSquared;
+
+  // attract to center
+  dir = selfPosition - centerMass;
+  velocity -= normalize(dir) * delta * 5.;
 
   for (float y=0.0;y<height;y++) {
     for (float x=0.0;x<width;x++) {
@@ -78,6 +88,9 @@ void main() {
       dist = length(dir);
 
       if (dist < 0.0001) continue;
+
+      distSquared = dist * dist;
+      if (distSquared > zoneRadiusSquared ) continue;
 
       // rule 1
       // Boids try to fly towards the centre of mass of neighbouring boids
@@ -100,10 +113,11 @@ void main() {
   allVelocity -= selfVelocity;
   allVelocity /= (numBoids - 1.);
 
-  velocity += normalize(centerMass) * 0.3; // delta;
-  velocity += normalize(sep) * delta;
+  velocity += normalize(centerMass) * delta;
+  velocity += normalize(sep) * 0.2; // delta;
   velocity += normalize(allVelocity) * delta;
   velocity += bound_position(selfPosition);
+  velocity += normalize(wind);
 
   // Boids rule 3
   // Boids try to match velocity with near boids.

@@ -42,7 +42,7 @@ function init() {
     //raycaster = new THREE.Raycaster( new THREE.Vector3(), new THREE.Vector3( 0, - 1, 0 ), 0, 10 );
 
     controls = initControls(scene, camera);
-    initSkybox(scene);
+    //initSkybox(scene);
     initFloor(scene);
     birdMesh = initBoids(scene);
 
@@ -53,6 +53,18 @@ function init() {
       velocityUniforms.seperationDistance.value = Number(ev.target.value);
       console.log('new separation distance', velocityUniforms.seperationDistance.value);
     });
+    document.querySelector('#alignment').addEventListener('change', ev => {
+      //console.log('separation change', ev.target.value);
+      velocityUniforms.alignmentDistance.value = Number(ev.target.value);
+      console.log('new alignment distance', velocityUniforms.alignmentDistance.value);
+    });
+    document.querySelector('#cohesion').addEventListener('change', ev => {
+      //console.log('separation change', ev.target.value);
+      velocityUniforms.cohesionDistance.value = Number(ev.target.value);
+      console.log('new cohesion distance', velocityUniforms.cohesionDistance.value);
+    });
+
+  velocityUniforms.wind.value = new THREE.Vector3(0.2, 0.1, 0);
 }
 
 function animate() {
