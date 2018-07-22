@@ -5,10 +5,10 @@ uniform float time;
 uniform float testing;
 uniform float delta; // about 0.016
 uniform float seperationDistance; // 20
-uniform float alignmentDistance; // 40
-uniform float cohesionDistance; //
+uniform float alignmentDistance; // 20
+uniform float cohesionDistance; // 20
 uniform float freedomFactor;
-uniform vec3 wind;
+uniform vec3 wind; // set by mouse
 uniform float scatter; // 1.
 
 const float width = resolution.x;
@@ -19,13 +19,13 @@ const float PI = 3.141592653589793;
 const float PI_2 = PI * 2.0;
 
 const float SPEED_LIMIT = 9.0;
-const float xMin = -500.0;
-const float xMax = 500.0;
-const float yMin = 40.0;
-const float yMax = 500.0;
-const float zMin = 0.0;
+const float xMin = -1500.0;
+const float xMax = 1500.0;
+const float yMin = 35.0;
+const float yMax = 1500.0;
+const float zMin = -300.0;
 const float zMax = 330.0;
-const float boundOffset = 20.0;
+const float boundOffset = 10.0;
 
 float zoneRadius, zoneRadiusSquared;
 float separationThreshold;
@@ -110,15 +110,15 @@ void main() {
   allVelocity -= selfVelocity;
   allVelocity /= (numBoids - 1.);
 
-  velocity += normalize(centerMass) * delta * scatter;
-  velocity += normalize(sep) * 0.2; // delta;
-  velocity += normalize(allVelocity) * delta;
+  velocity += (1. / cohesionDistance) * normalize(centerMass) * delta * scatter;
+  velocity += (1. / seperationDistance) * normalize(sep) * delta;
+  velocity += (1. / alignmentDistance) * normalize(allVelocity) * delta;
   velocity += normalize(wind) * delta;
-  velocity += bound_position(selfPosition);
+  velocity += bound_position(selfPosition) * delta;
 
   // attract to center?
-  /*dir = selfPosition - centerMass;*/
-  /*velocity -= normalize(dir) * delta * 5.;*/
+  dir = selfPosition - centerMass;
+  velocity -= normalize(dir) * delta * 5.;
 
   // Boids rule 3
   // Boids try to match velocity with near boids.

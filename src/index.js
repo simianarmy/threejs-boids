@@ -8,7 +8,8 @@ import { controlsEnabled,
 import { initGPUComputeRenderer, GPUCompute } from './gpucomputer.js';
 import { WORLD_WIDTH, WIDTH } from './globals.js';
 
-var scene, camera, renderer, controls, raycaster, birdMesh;
+let scene, camera, renderer, controls, raycaster, birdMesh;
+let screenCenterX, screenCenterY;
 
 // Helpers to get scene bounds
 const visibleHeightAtZDepth = ( depth, camera ) => {
@@ -28,6 +29,16 @@ const visibleWidthAtZDepth = ( depth, camera ) => {
   const height = visibleHeightAtZDepth( depth, camera );
   return height * camera.aspect;
 };
+
+function onWindowResize() {
+  screenCenterX = window.innerWidth / 2;
+  screenCenterY = window.innerHeight / 2;
+
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+
+  renderer.setSize( window.innerWidth, window.innerHeight );
+}
 
 init();
 animate();
@@ -63,39 +74,42 @@ function init() {
   //raycaster = new THREE.Raycaster( new THREE.Vector3(), new THREE.Vector3( 0, - 1, 0 ), 0, 10 );
 
   controls = initControls(scene, camera);
-  //initSkybox(scene);
+  initSkybox(scene);
   initFloor(scene);
   birdMesh = initBoids(scene);
 
   console.log(`z=${cameraZ} width=${visibleWidthAtZDepth(cameraZ, camera)} height=${visibleHeightAtZDepth(cameraZ, camera)}`);
 
   let { positionUniforms, velocityUniforms } = initGPUComputeRenderer(WIDTH, WIDTH, renderer);
-  let screenCenterX = renderer.domElement.width / 2;
-  let screenCenterY = renderer.domElement.height / 2;
 
-  document.querySelector('#separation').addEventListener('change', ev => {
+  screenCenterX = window.innerWidth / 2;
+  screenCenterY = window.innerHeight / 2;
+  console.log('screen center x,y', screenCenterX, screenCenterY);
+
+  const onControlInput = (ev) => {
     //console.log('separation change', ev.target.value);
-    velocityUniforms.seperationDistance.value = Number(ev.target.value);
+    velocityUniforms.seperationDistance.value = Number(document.querySelector('#separation').value);
     console.log('new separation distance', velocityUniforms.seperationDistance.value);
-  });
-  document.querySelector('#alignment').addEventListener('change', ev => {
-    //console.log('separation change', ev.target.value);
-    velocityUniforms.alignmentDistance.value = Number(ev.target.value);
+    velocityUniforms.alignmentDistance.value = Number(document.querySelector('#alignment').value);
     console.log('new alignment distance', velocityUniforms.alignmentDistance.value);
-  });
-  document.querySelector('#cohesion').addEventListener('change', ev => {
-    //console.log('separation change', ev.target.value);
-    velocityUniforms.cohesionDistance.value = Number(ev.target.value);
+    velocityUniforms.cohesionDistance.value = Number(document.querySelector('#cohesion').value);
     console.log('new cohesion distance', velocityUniforms.cohesionDistance.value);
-  });
+  };
+  document.querySelector('#separation').addEventListener('change', onControlInput);
+  document.querySelector('#alignment').addEventListener('change', onControlInput);
+  document.querySelector('#cohesion').addEventListener('change', onControlInput);
+
   document.querySelector('#scatter').addEventListener('click', ev => {
     velocityUniforms.scatter.value = ev.target.checked ? -1. : 1.;
   });
+  let windEl = document.querySelector('#windVal');
   renderer.domElement.addEventListener('mousemove', ev => {
-    console.log('mouse moved', ev.clientX, ev.clientY);
     velocityUniforms.wind.value = new THREE.Vector3(ev.clientX - screenCenterX, ev.clientY - screenCenterY, 0.);
+    windEl.innerHTML = `${velocityUniforms.wind.value.x}, ${velocityUniforms.wind.value.y}`;
   });
+  window.addEventListener('resize', onWindowResize);
 
+  onControlInput();
 }
 
 function animate() {
