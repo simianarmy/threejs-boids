@@ -9,6 +9,7 @@ uniform float alignmentDistance; // 40
 uniform float cohesionDistance; //
 uniform float freedomFactor;
 uniform vec3 wind;
+uniform float scatter; // 1.
 
 const float width = resolution.x;
 const float height = resolution.y;
@@ -18,13 +19,13 @@ const float PI = 3.141592653589793;
 const float PI_2 = PI * 2.0;
 
 const float SPEED_LIMIT = 9.0;
-const float xMin = -1500.0;
-const float xMax = 1500.0;
+const float xMin = -500.0;
+const float xMax = 500.0;
 const float yMin = 40.0;
-const float yMax = 1000.0;
-const float zMin = -200.0;
-const float zMax = 300.0;
-const float boundOffset = 40.0;
+const float yMax = 500.0;
+const float zMin = 0.0;
+const float zMax = 330.0;
+const float boundOffset = 20.0;
 
 float zoneRadius, zoneRadiusSquared;
 float separationThreshold;
@@ -74,10 +75,6 @@ void main() {
   vec3 dir;
   float dist, distSquared;
 
-  // attract to center
-  dir = selfPosition - centerMass;
-  velocity -= normalize(dir) * delta * 5.;
-
   for (float y=0.0;y<height;y++) {
     for (float x=0.0;x<width;x++) {
       vec2 ref = vec2( x + 0.5, y + 0.5 ) / resolution.xy;
@@ -113,11 +110,15 @@ void main() {
   allVelocity -= selfVelocity;
   allVelocity /= (numBoids - 1.);
 
-  velocity += normalize(centerMass) * delta;
+  velocity += normalize(centerMass) * delta * scatter;
   velocity += normalize(sep) * 0.2; // delta;
   velocity += normalize(allVelocity) * delta;
+  velocity += normalize(wind) * delta;
   velocity += bound_position(selfPosition);
-  velocity += normalize(wind);
+
+  // attract to center?
+  /*dir = selfPosition - centerMass;*/
+  /*velocity -= normalize(dir) * delta * 5.;*/
 
   // Boids rule 3
   // Boids try to match velocity with near boids.
