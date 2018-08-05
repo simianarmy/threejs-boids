@@ -35,7 +35,7 @@ export const initControls = (scene, camera) => {
     document.addEventListener( 'pointerlockerror', pointerlockerror, false );
     document.addEventListener( 'mozpointerlockerror', pointerlockerror, false );
     document.addEventListener( 'webkitpointerlockerror', pointerlockerror, false );
-    document.addEventListener( 'click', function ( event ) {
+    instructions.addEventListener( 'click', function ( event ) {
       instructions.style.display = 'none';
       // Ask the browser to lock the pointer
       element.requestPointerLock = element.requestPointerLock || element.mozRequestPointerLock || element.webkitRequestPointerLock;

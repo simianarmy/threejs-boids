@@ -110,18 +110,30 @@ void main() {
   allVelocity -= selfVelocity;
   allVelocity /= (numBoids - 1.);
 
+  // Add rules 1 - 3
   velocity += (1. / cohesionDistance) * normalize(centerMass) * delta * scatter;
   velocity += (1. / seperationDistance) * normalize(sep) * delta;
   velocity += (1. / alignmentDistance) * normalize(allVelocity) * delta;
-  velocity += normalize(wind) * delta;
+
+  // apply wind, if any
+  if (length(wind) > 0.) {
+    velocity += normalize(wind) * delta;
+  }
   velocity += bound_position(selfPosition) * delta;
 
-  // attract to center?
+  // attract to center
   dir = selfPosition - centerMass;
   velocity -= normalize(dir) * delta * 5.;
 
-  // Boids rule 3
-  // Boids try to match velocity with near boids.
+  // run from predator
+  // dir = predator - selfPosition;
+  // distToPredator = length(dist);
+  // if (distToPredator < predatorTreshold) {
+  //  the closer bird is to predator, the greater the multiplier
+  //  let m = (dist^2 / preyRadius^2) * delta * 100
+  //  velocity += m * normalize(dir);
+  //  increase speed limit
+  //  }
 
   // Speed Limits
   if ( length( velocity ) > SPEED_LIMIT ) {

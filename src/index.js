@@ -99,14 +99,27 @@ function init() {
   document.querySelector('#alignment').addEventListener('change', onControlInput);
   document.querySelector('#cohesion').addEventListener('change', onControlInput);
 
-  document.querySelector('#scatter').addEventListener('click', ev => {
-    velocityUniforms.scatter.value = ev.target.checked ? -1. : 1.;
-  });
+  let enableWind = false;
+  let forceScatter = false;
+
   let windEl = document.querySelector('#windVal');
   renderer.domElement.addEventListener('mousemove', ev => {
-    velocityUniforms.wind.value = new THREE.Vector3(ev.clientX - screenCenterX, ev.clientY - screenCenterY, 0.);
+    velocityUniforms.wind.value = enableWind ? new THREE.Vector3(ev.clientX - screenCenterX, ev.clientY - screenCenterY, 0.) : new THREE.Vector3(0., 0., 0.);
     windEl.innerHTML = `${velocityUniforms.wind.value.x}, ${velocityUniforms.wind.value.y}`;
   });
+  document.addEventListener( 'keydown', function(event) {
+    switch (event.keyCode) {
+      case 87: // w
+        enableWind = !enableWind;
+        break;
+      case 83: // s
+        forceScatter = !forceScatter;
+        velocityUniforms.scatter.value = forceScatter ? -1. : 1.;
+        console.log('Scatter value', velocityUniforms.scatter.value);
+        break;
+    }
+  }, false);
+
   window.addEventListener('resize', onWindowResize);
 
   onControlInput();
