@@ -1,4 +1,4 @@
-export const WIDTH = 32;
+export const WIDTH = 128;
 export const NUM_BIRDS = WIDTH * WIDTH;
 export const BOUNDS = 2000;
 export const BOUNDS_HALF = BOUNDS / 2;

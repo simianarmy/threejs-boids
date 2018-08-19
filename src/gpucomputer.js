@@ -45,6 +45,7 @@ export const initGPUComputeRenderer = (width, height, renderFn) => {
     velocityUniforms.cohesionDistance = { type: "f", value: 1.0 };
     velocityUniforms.freedomFactor = { type: "f", value: 1.0 };
     velocityUniforms.wind = { type: "v3v", value: new THREE.Vector3(1, 0, 0) };
+    velocityUniforms.predator = { type: "v3v", value: new THREE.Vector3(1, 0, 0) };
     velocityUniforms.scatter = { type: "f", value: 1.0 };
     velocityVariable.material.defines.BOUNDS = BOUNDS.toFixed( 2 );
 

@@ -8,7 +8,7 @@ import { controlsEnabled,
 import { initGPUComputeRenderer, GPUCompute } from './gpucomputer.js';
 import { WORLD_WIDTH, WIDTH } from './globals.js';
 
-let scene, camera, renderer, controls, raycaster, birdMesh;
+let scene, camera, renderer, controls, birdMesh;
 let screenCenterX, screenCenterY;
 
 // Helpers to get scene bounds
@@ -66,12 +66,7 @@ function init() {
   document.body.appendChild( renderer.domElement );
 
   var axes = new THREE.AxisHelper(100);
-  //scene.add(axes);
-
-  ////////////////
-  // raycaster //
-  ////////////////
-  //raycaster = new THREE.Raycaster( new THREE.Vector3(), new THREE.Vector3( 0, - 1, 0 ), 0, 10 );
+  scene.add(axes);
 
   controls = initControls(scene, camera);
   initSkybox(scene);
@@ -101,21 +96,31 @@ function init() {
 
   let enableWind = false;
   let forceScatter = false;
+  let enablePredator = false;
+  let zeroVector = new THREE.Vector3(0., 0., 0.);
 
   let windEl = document.querySelector('#windVal');
+  let predatorEl = document.querySelector('#predatorVal');
+
   renderer.domElement.addEventListener('mousemove', ev => {
-    velocityUniforms.wind.value = enableWind ? new THREE.Vector3(ev.clientX - screenCenterX, ev.clientY - screenCenterY, 0.) : new THREE.Vector3(0., 0., 0.);
+    velocityUniforms.wind.value = enableWind ? new THREE.Vector3(ev.clientX - screenCenterX, ev.clientY - screenCenterY, 0.) : zeroVector;
+    //velocityUniforms.predator.value = enablePredator ? new THREE.Vector3(0.5 * ev.clientX / screenCenterX, - 0.5 * ev.clientY / screenCenterY, 0) : zeroVector;
+    velocityUniforms.predator.value = enablePredator ? new THREE.Vector3(ev.clientX - screenCenterX, ev.clientY - screenCenterY, 0) : zeroVector;
     windEl.innerHTML = `${velocityUniforms.wind.value.x}, ${velocityUniforms.wind.value.y}`;
+    predatorEl.innerHTML = `${velocityUniforms.predator.value.x}, ${velocityUniforms.predator.value.y}`;
   });
   document.addEventListener( 'keydown', function(event) {
     switch (event.keyCode) {
-      case 87: // w
-        enableWind = !enableWind;
+      case 80: // p
+        enablePredator = !enablePredator;
         break;
       case 83: // s
         forceScatter = !forceScatter;
         velocityUniforms.scatter.value = forceScatter ? -1. : 1.;
         console.log('Scatter value', velocityUniforms.scatter.value);
+        break;
+      case 87: // w
+        enableWind = !enableWind;
         break;
     }
   }, false);

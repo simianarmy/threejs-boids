@@ -9,6 +9,7 @@ uniform float alignmentDistance; // 20
 uniform float cohesionDistance; // 20
 uniform float freedomFactor;
 uniform vec3 wind; // set by mouse
+uniform vec3 predator; // set by mouse
 uniform float scatter; // 1.
 
 const float width = resolution.x;
@@ -74,6 +75,7 @@ void main() {
   vec3 allVelocity = vec3(.0, .0, .0);
   vec3 dir;
   float dist, distSquared;
+  float speedLimit = SPEED_LIMIT;
 
   for (float y=0.0;y<height;y++) {
     for (float x=0.0;x<width;x++) {
@@ -126,18 +128,26 @@ void main() {
   velocity -= normalize(dir) * delta * 5.;
 
   // run from predator
-  // dir = predator - selfPosition;
-  // distToPredator = length(dist);
-  // if (distToPredator < predatorTreshold) {
-  //  the closer bird is to predator, the greater the multiplier
-  //  let m = (dist^2 / preyRadius^2) * delta * 100
-  //  velocity += m * normalize(dir);
-  //  increase speed limit
-  //  }
+  if (length(predator) > 0.) {
+    dir = predator - selfPosition;
+    dir.z = 0.;
+    float distToPredator = length(dir);
+
+    float preyRadius = 150.0;
+    float preyRadiusSq = preyRadius * preyRadius;
+
+    if (distToPredator < preyRadius) {
+      // the closer bird is to predator, the greater the multiplier
+      float m = (distToPredator*distToPredator / preyRadiusSq  - 1.) * delta * 100.;
+      velocity += m * normalize(dir);
+      // increase speed limit
+      speedLimit += 5.;
+    }
+  }
 
   // Speed Limits
-  if ( length( velocity ) > SPEED_LIMIT ) {
-    velocity = normalize( velocity ) * SPEED_LIMIT;
+  if ( length( velocity ) > speedLimit ) {
+    velocity = normalize( velocity ) * speedLimit;
   }
 
   gl_FragColor = vec4(velocity, 1.0 );
