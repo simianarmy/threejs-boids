@@ -14,8 +14,7 @@ https://threejs.org/examples/webgl_gpgpu_birds.html
 
 ## Running
 
-> nr build
-> open dist/index.html
+> nr build && open dist/index.html
 
 ## Developing
 
@@ -23,7 +22,7 @@ https://threejs.org/examples/webgl_gpgpu_birds.html
 
 ## TODO
 
-  - Predator
+  - <strike>Predator</strike>
   - Procedural terrain
   - Collision avoidance with terrain solids
 
