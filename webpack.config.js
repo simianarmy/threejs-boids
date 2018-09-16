@@ -1,6 +1,8 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CleanWebpackPlugin = require('clean-webpack-plugin');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
+const HtmlWebpackExternalsPlugin = require('html-webpack-externals-plugin');
 
 module.exports = {
     entry: './src/index.js',
@@ -41,6 +43,18 @@ module.exports = {
         new HtmlWebpackPlugin({
             title: 'Development',
             template: 'src/index.html'
-        })
+        }),
+      new CopyWebpackPlugin(
+        [{from: './vendor', to: 'vendor/'}]
+      ),
+      new HtmlWebpackExternalsPlugin({
+        externals: [
+          {
+            module: 'three.terrain.js',
+            entry: 'build/THREE.Terrain.min.js',
+            global: 'THREE',
+          },
+        ],
+      })
     ]
 };
