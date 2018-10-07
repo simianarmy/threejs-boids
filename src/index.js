@@ -1,6 +1,7 @@
 //import * as THREE from 'three';
 import { initSkybox } from './skybox.js';
 import { initFloor } from './floor.js';
+import { initLights } from './lights.js';
 import { initBoids } from './boids.js';
 import { controlsEnabled,
     initControls,
@@ -48,6 +49,7 @@ function init() {
   const cameraZ = 350;
 
   scene = new THREE.Scene();
+  scene.fog = new THREE.FogExp2(0x868293, 0.0007);
 
   ////////////
   // camera //
@@ -70,6 +72,7 @@ function init() {
 
   controls = initControls(scene, camera);
   initSkybox(scene);
+  initLights(scene);
   initFloor(scene);
   birdMesh = initBoids(scene);
 

@@ -4,30 +4,17 @@
 import { WORLD_WIDTH } from './globals.js';
 import 'three.terrain.js';
 
+import grassImg from './images/ground/grass1.jpg';
+import sandImg from './images/ground/sand1.jpg';
+import snowImg from './images/ground/snow1.jpg';
+import stoneImg from './images/ground/stone1.jpg';
+
 export const initFloor = (scene) => {
 
-  var xS = 63, yS = 63;
-  var terrainScene = THREE.Terrain({
-    easing: THREE.Terrain.Linear,
-    frequency: 2.5,
-    heightmap: THREE.Terrain.DiamondSquare,
-    material: new THREE.MeshBasicMaterial({color: 0x5566aa}),
-    maxHeight: 100,
-    minHeight: -100,
-    steps: 1,
-    useBufferGeometry: false,
-    xSegments: xS,
-    xSize: 1024,
-    ySegments: yS,
-    ySize: 1024,
-  });
-  // Assuming you already have your global scene, add the terrain to it
-  scene.add(terrainScene);
-
+  let terrainScene, blend, xS = 63, yS = 63;
   /*
    * Triangle-y floor from example
    *
-    floorGeometry.rotateX( - Math.PI / 2 );
     for ( var i = 0, l = floorGeometry.vertices.length; i < l; i ++ ) {
         var vertex = floorGeometry.vertices[ i ];
         vertex.x += Math.random() * 20 - 10;
@@ -44,5 +31,90 @@ export const initFloor = (scene) => {
     var floor = new THREE.Mesh( floorGeometry, floorMaterial );
     scene.add( floor );
     */
+  //var floorMaterial = new THREE.MeshBasicMaterial( { vertexColors: 0x5566aa} );
+
+  const regenerate = (material) => {
+    scene.remove(terrainScene);
+
+    terrainScene = THREE.Terrain({
+      easing: THREE.Terrain.Linear,
+      frequency: 2.5,
+      heightmap: THREE.Terrain.PerlinDiamond,
+      material: material,
+      maxHeight: 100,
+      minHeight: -100,
+      steps: 1,
+      stretch: true,
+      useBufferGeometry: false,
+      xSegments: xS,
+      xSize: 2500,
+      ySegments: yS,
+      ySize: 2500,
+    });
+    // Assuming you already have your global scene, add the terrain to it
+    scene.add(terrainScene);
+
+    // Optional:
+    // Get the geometry of the terrain across which you want to scatter meshes
+    var geo = terrainScene.children[0].geometry;
+    // Add randomly distributed foliage
+    var decoScene = THREE.Terrain.ScatterMeshes(geo, {
+      mesh: new THREE.Mesh(new THREE.CylinderGeometry(2, 2, 12, 6)),
+      w: xS,
+      h: yS,
+      spread: 0.02,
+      randomness: Math.random,
+    });
+    terrainScene.add(decoScene);
+  };
+
+  // add water?
+  let water = new THREE.Mesh(
+    new THREE.PlaneBufferGeometry(16384+1024, 16384+1024, 16, 16),
+    new THREE.MeshLambertMaterial({color: 0x006ba0, transparent: true, opacity: 0.6})
+  );
+  water.position.y = -60;
+  water.rotation.x = -0.5 * Math.PI;
+  //scene.add(water);
+
+	// Load ground material textures
+  let loader = new THREE.TextureLoader();
+
+  loader.load(sandImg, function(t1) {
+    t1.wrapS = t1.wrapT = THREE.RepeatWrapping;
+    let sand = new THREE.Mesh(
+      new THREE.PlaneBufferGeometry(16384+1024, 16384+1024, 64, 64),
+      new THREE.MeshLambertMaterial({map: t1})
+    );
+    sand.position.y = -59;
+    sand.rotation.x = -0.5 * Math.PI;
+		scene.add(sand);
+
+		// Use this for ground texture until img textures code works
+    let gray = new THREE.MeshPhongMaterial({ color: 0x88aaaa, specular: 0x444455, shininess: 10 });
+
+    regenerate(gray);
+
+    /* the code below causes a shader error.  something about a lighting
+     * uniform value...
+     *
+    loader.load(grassImg, function(t2) {
+      loader.load(stoneImg, function(t3) {
+        loader.load(snowImg, function(t4) {
+          // t2.repeat.x = t2.repeat.y = 2;
+          let blend = THREE.Terrain.generateBlendedMaterial([
+            {texture: t1},
+            {texture: t2, levels: [-80, -35, 20, 50]},
+            {texture: t3, levels: [20, 50, 60, 85]},
+            {texture: t4, glsl: '1.0 - smoothstep(65.0 + smoothstep(-256.0, 256.0, vPosition.x) * 10.0, 80.0, vPosition.z)'},
+            {texture: t3, glsl: 'slope > 0.7853981633974483 ? 0.2 : 1.0 - smoothstep(0.47123889803846897, 0.7853981633974483, slope) + 0.2'}, // between 27 and 45 degrees
+          ]);
+
+          regenerate(blend);
+        });
+      });
+    });
+    */
+  });
 };
 
