@@ -11,6 +11,7 @@ uniform float freedomFactor;
 uniform vec3 wind; // set by mouse
 uniform vec3 predator; // set by mouse
 uniform float scatter; // 1.
+uniform sampler2D heightMap;
 
 const float width = resolution.x;
 const float height = resolution.y;
@@ -22,7 +23,7 @@ const float PI_2 = PI * 2.0;
 const float SPEED_LIMIT = 9.0;
 const float xMin = -1500.0;
 const float xMax = 1500.0;
-const float yMin = 35.0;
+/*const float yMin = 35.0;*/
 const float yMax = 1500.0;
 const float zMin = -300.0;
 const float zMax = 330.0;
@@ -35,7 +36,7 @@ float rand(vec2 co){
   return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453);
 }
 
-vec3 bound_position(vec3 b) {
+vec3 bound_position(vec3 b, float yMin) {
   vec3 v = vec3(.0, .0, .0);
 
   if (b.x < xMin) {
@@ -68,6 +69,7 @@ void main() {
 
   vec3 selfPosition = texture2D( texturePosition, uv ).xyz;
   vec3 selfVelocity = texture2D( textureVelocity, uv ).xyz;
+  float groundHeight = texture2D( heightMap, uv).y;
 
   vec3 velocity = selfVelocity;
   vec3 centerMass = vec3(.0, .0, .0);
@@ -121,7 +123,7 @@ void main() {
   if (length(wind) > 0.) {
     velocity += normalize(wind) * delta;
   }
-  velocity += bound_position(selfPosition) * delta;
+  velocity += bound_position(selfPosition, groundHeight) * delta;
 
   // attract to center
   dir = selfPosition - centerMass;

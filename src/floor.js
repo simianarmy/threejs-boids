@@ -9,10 +9,32 @@ import sandImg from './images/ground/sand1.jpg';
 import snowImg from './images/ground/snow1.jpg';
 import stoneImg from './images/ground/stone1.jpg';
 
+const xS = 63, yS = 63, minHeight = -100, maxHeight = 100;
+
+/**
+ * @returns {Image}
+ */
+export const getHeightMap = (scene) => {
+  let terrain = scene.getObjectByName('Terrain');
+  // create heightmap canvas
+  // Append to your document body to view; right click to save as a PNG image.
+  // Note: doesn't work if you generated the terrain with
+  // `useBufferGeometry` set to `true`.
+  let canvas = THREE.Terrain.toHeightmap(
+    // terrainScene.children[0] is the most detailed version of the terrain mesh
+    terrain.children[0].geometry.vertices,
+    { xSegments: xS, ySegments: yS, maxHeight, minHeight }
+  );
+  let img = new Image();
+  img.src = canvas.toDataURL();
+
+  return img;
+};
+
 export const initFloor = (scene) => {
 
-  let terrainScene, blend, xS = 63, yS = 63;
-  /*
+  let terrainScene, blend;
+    /*
    * Triangle-y floor from example
    *
     for ( var i = 0, l = floorGeometry.vertices.length; i < l; i ++ ) {
@@ -33,16 +55,19 @@ export const initFloor = (scene) => {
     */
   //var floorMaterial = new THREE.MeshBasicMaterial( { vertexColors: 0x5566aa} );
 
-  const regenerate = (material) => {
-    scene.remove(terrainScene);
+  function regenerate(material) {
+    console.log('Regenerating terrain');
+    if (terrainScene) {
+      scene.remove(terrainScene);
+    }
 
     terrainScene = THREE.Terrain({
       easing: THREE.Terrain.Linear,
       frequency: 2.5,
       heightmap: THREE.Terrain.PerlinDiamond,
       material: material,
-      maxHeight: 100,
-      minHeight: -100,
+      maxHeight,
+      minHeight,
       steps: 1,
       stretch: true,
       useBufferGeometry: false,
@@ -51,14 +76,15 @@ export const initFloor = (scene) => {
       ySegments: yS,
       ySize: 2500,
     });
+    terrainScene.name = 'Terrain';
     // Assuming you already have your global scene, add the terrain to it
     scene.add(terrainScene);
 
     // Optional:
     // Get the geometry of the terrain across which you want to scatter meshes
-    var geo = terrainScene.children[0].geometry;
+    let geo = terrainScene.children[0].geometry;
     // Add randomly distributed foliage
-    var decoScene = THREE.Terrain.ScatterMeshes(geo, {
+    let decoScene = THREE.Terrain.ScatterMeshes(geo, {
       mesh: new THREE.Mesh(new THREE.CylinderGeometry(2, 2, 12, 6)),
       w: xS,
       h: yS,
@@ -66,16 +92,20 @@ export const initFloor = (scene) => {
       randomness: Math.random,
     });
     terrainScene.add(decoScene);
+
+    return terrainScene;
   };
 
   // add water?
+  /*
   let water = new THREE.Mesh(
     new THREE.PlaneBufferGeometry(16384+1024, 16384+1024, 16, 16),
     new THREE.MeshLambertMaterial({color: 0x006ba0, transparent: true, opacity: 0.6})
   );
   water.position.y = -60;
   water.rotation.x = -0.5 * Math.PI;
-  //scene.add(water);
+  scene.add(water);
+  */
 
 	// Load ground material textures
   let loader = new THREE.TextureLoader();

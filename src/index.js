@@ -1,6 +1,6 @@
 //import * as THREE from 'three';
 import { initSkybox } from './skybox.js';
-import { initFloor } from './floor.js';
+import { initFloor, getHeightMap } from './floor.js';
 import { initLights } from './lights.js';
 import { initBoids } from './boids.js';
 import { controlsEnabled,
@@ -80,6 +80,12 @@ function init() {
 
   let { positionUniforms, velocityUniforms } = initGPUComputeRenderer(WIDTH, WIDTH, renderer);
 
+  // We need to pass the heightmap texture to the shader for bird/ground
+  // collision detection
+  setTimeout(() => {
+    velocityUniforms.heightMap.value = getHeightMap(scene);
+  }, 500);
+
   screenCenterX = window.innerWidth / 2;
   screenCenterY = window.innerHeight / 2;
   console.log('screen center x,y', screenCenterX, screenCenterY);
@@ -122,7 +128,11 @@ function init() {
         velocityUniforms.scatter.value = forceScatter ? -1. : 1.;
         console.log('Scatter value', velocityUniforms.scatter.value);
         break;
-      case 87: // w
+      case 84: // t = terrain heightmap
+        let img = getHeightMap(scene);
+        document.body.appendChild(img);
+        break;
+      case 87: // k
         enableWind = !enableWind;
         break;
     }
