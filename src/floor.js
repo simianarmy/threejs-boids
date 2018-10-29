@@ -9,7 +9,7 @@ import sandImg from './images/ground/sand1.jpg';
 import snowImg from './images/ground/snow1.jpg';
 import stoneImg from './images/ground/stone1.jpg';
 
-const xS = 63, yS = 63, minHeight = -100, maxHeight = 100;
+const xS = 63, yS = 63, minHeight = -100, maxHeight = 200;
 
 /**
  * @returns {Image}
