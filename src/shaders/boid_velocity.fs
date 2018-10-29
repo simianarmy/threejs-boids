@@ -71,9 +71,9 @@ void main() {
   vec3 selfVelocity = texture2D( textureVelocity, uv ).xyz;
 
   // get terrain height at this position
-  float groundPos = texture2D(heightMap, uv).r;
+  float groundPos = texture2D(heightMap, uv).y;
   // float groundHeight = (groundPos / 255.0 * 300.0 - 100.0);
-  float groundHeight = groundPos * 400.0 * resolution.y;
+  float groundHeight = groundPos * 300.0 * resolution.y;
 
   vec3 velocity = selfVelocity;
   vec3 centerMass = vec3(.0, .0, .0);
