@@ -9,7 +9,8 @@ import sandImg from './images/ground/sand1.jpg';
 import snowImg from './images/ground/snow1.jpg';
 import stoneImg from './images/ground/stone1.jpg';
 
-const xS = 63, yS = 63, minHeight = -100, maxHeight = 200;
+const xS = 63, yS = 63, minHeight = -100, maxHeight = 200; // spread: 300
+const xSize = WORLD_WIDTH, ySize = WORLD_WIDTH;
 
 /**
  * @returns {Image}
@@ -25,10 +26,14 @@ export const getHeightMap = (scene) => {
     terrain.children[0].geometry.vertices,
     { xSegments: xS, ySegments: yS, maxHeight, minHeight }
   );
+  console.log('Heightmap canvas', canvas);
+  const context = canvas.getContext('2d');
+  return context.getImageData(0, 0, canvas.width, canvas.height).data;
+  /*
   let img = new Image();
   img.src = canvas.toDataURL();
-
   return img;
+  */
 };
 
 export const initFloor = (scene) => {
@@ -65,16 +70,16 @@ export const initFloor = (scene) => {
       easing: THREE.Terrain.Linear,
       frequency: 2.5,
       heightmap: THREE.Terrain.PerlinDiamond,
-      material: material,
+      material,
       maxHeight,
       minHeight,
       steps: 1,
       stretch: true,
       useBufferGeometry: false,
       xSegments: xS,
-      xSize: 2500,
+      xSize,
       ySegments: yS,
-      ySize: 2500,
+      ySize
     });
     terrainScene.name = 'Terrain';
     // Assuming you already have your global scene, add the terrain to it

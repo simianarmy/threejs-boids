@@ -49,7 +49,7 @@ function init() {
   const cameraZ = 350;
 
   scene = new THREE.Scene();
-  scene.fog = new THREE.FogExp2(0x868293, 0.0007);
+  //scene.fog = new THREE.FogExp2(0x868293, 0.0007);
 
   ////////////
   // camera //
@@ -83,7 +83,9 @@ function init() {
   // We need to pass the heightmap texture to the shader for bird/ground
   // collision detection
   setTimeout(() => {
-    velocityUniforms.heightMap.value = getHeightMap(scene);
+    const heightmap = getHeightMap(scene);
+    velocityUniforms.heightMap.value = heightmap;
+    console.log('Heightmap value', heightmap);
   }, 500);
 
   screenCenterX = window.innerWidth / 2;
