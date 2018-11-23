@@ -1,4 +1,4 @@
-export const WIDTH = 2; // Controls total # of boids
+export const WIDTH = 20; // Controls total # of boids
 export const NUM_BIRDS = WIDTH * WIDTH;
 export const BOUNDS = 2000;
 export const BOUNDS_HALF = BOUNDS / 2;
