@@ -44,9 +44,9 @@ module.exports = {
             title: 'Development',
             template: 'src/index.html'
         }),
-      new CopyWebpackPlugin(
-        [{from: './vendor', to: 'vendor/'}]
-      ),
+      //new CopyWebpackPlugin(
+        //[{from: './vendor', to: 'vendor/'}]
+      //),
       new HtmlWebpackExternalsPlugin({
         externals: [
           {
