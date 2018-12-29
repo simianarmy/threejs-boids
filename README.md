@@ -1,5 +1,7 @@
 # threejs-boids
 
+[Demo](https://flamboyant-goldstine-9c0e1c.netlify.com://flamboyant-goldstine-9c0e1c.netlify.com/)
+
 My attempt at GPU-rendered boids <strike>without looking at examples</strike>
 using my old boids simulation code as much as possible.
 
