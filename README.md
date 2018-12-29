@@ -11,6 +11,8 @@ https://threejs.org/examples/webgl_gpgpu_birds.html
   - Boids flocking algorithm
   - GPUComputationalRender for boids algorithms in gpu
   - Skybox for sky
+  - Procedural terrain
+  - Sort-of working ground collision detection for boids
 
 ## Running
 
