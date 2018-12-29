@@ -23,7 +23,7 @@ const float PI_2 = PI * 2.0;
 const float SPEED_LIMIT = 9.0;
 const float xMin = -1500.0;
 const float xMax = 1500.0;
-/*const float yMin = 35.0;*/
+const float heightFromGroundMin = 50.0;
 const float yMax = 1500.0;
 const float zMin = -300.0;
 const float zMax = 330.0;
@@ -126,7 +126,6 @@ void main() {
   if (length(wind) > 0.) {
     velocity += normalize(wind) * delta;
   }
-  velocity += bound_position(selfPosition, groundHeight) * delta;
 
   // attract to center
   dir = selfPosition - centerMass;
@@ -149,6 +148,9 @@ void main() {
       speedLimit += 5.;
     }
   }
+
+  // Ground & bounds collision detection
+  velocity += bound_position(selfPosition, groundHeight + heightFromGroundMin) * delta;
 
   // Speed Limits
   if ( length( velocity ) > speedLimit ) {
