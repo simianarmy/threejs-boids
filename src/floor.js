@@ -102,7 +102,6 @@ export const initFloor = (scene) => {
   };
 
   // add water?
-  /*
   let water = new THREE.Mesh(
     new THREE.PlaneBufferGeometry(16384+1024, 16384+1024, 16, 16),
     new THREE.MeshLambertMaterial({color: 0x006ba0, transparent: true, opacity: 0.6})
@@ -110,20 +109,21 @@ export const initFloor = (scene) => {
   water.position.y = -60;
   water.rotation.x = -0.5 * Math.PI;
   scene.add(water);
-  */
 
 	// Load ground material textures
   let loader = new THREE.TextureLoader();
 
   loader.load(sandImg, function(t1) {
     t1.wrapS = t1.wrapT = THREE.RepeatWrapping;
+    /*
     let sand = new THREE.Mesh(
       new THREE.PlaneBufferGeometry(16384+1024, 16384+1024, 64, 64),
       new THREE.MeshLambertMaterial({map: t1})
     );
     sand.position.y = -59;
     sand.rotation.x = -0.5 * Math.PI;
-		scene.add(sand);
+    scene.add(sand);
+    */
 
 		// Use this for ground texture until img textures code works
     let gray = new THREE.MeshPhongMaterial({ color: 0x88aaaa, specular: 0x444455, shininess: 10 });
