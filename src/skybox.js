@@ -1,4 +1,4 @@
-//import * as THREE from 'three';
+import * as THREE from 'three';
 import skyposx1 from './images/sky/skyposx1.png';
 import skynegx1 from './images/sky/skynegx1.png';
 import skyposy1 from './images/sky/skyposy1.png';
@@ -22,7 +22,8 @@ export const initSkybox = (scene) => {
   for (var i = 0; i < 6; i++) {
     materialArray[i].side = THREE.BackSide;
   }
-  let material = new THREE.MeshFaceMaterial( materialArray );
+  // MeshFaceMaterial deprecated - pass array to Mesh
+  //let material = new THREE.MeshFaceMaterial( materialArray );
 
   // couldnt get CubeTextureLoader to look right
   /*
@@ -39,7 +40,7 @@ export const initSkybox = (scene) => {
   */
 
   let skyboxGeom = new THREE.BoxGeometry( 3000, 3000, 3000, 1, 1, 1 );
-  let skybox = new THREE.Mesh( skyboxGeom, material );
+  let skybox = new THREE.Mesh( skyboxGeom, materialArray );
 
   scene.add( skybox );
 };

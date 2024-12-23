@@ -1,4 +1,5 @@
-//import * as THREE from 'three';
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { initSkybox } from './skybox.js';
 import { initFloor, getHeightMap } from './floor.js';
 import { initLights } from './lights.js';
@@ -9,7 +10,7 @@ import { controlsEnabled,
 import { initGPUComputeRenderer, GPUCompute } from './gpucomputer.js';
 import { WORLD_WIDTH, WIDTH } from './globals.js';
 
-let scene, camera, renderer, controls, birdMesh;
+let scene, camera, renderer, controls, orbitControls, birdMesh;
 let screenCenterX, screenCenterY;
 
 // Helpers to get scene bounds
@@ -59,6 +60,7 @@ function init() {
   //camera.up.set( 0, 1, 0);
   //camera.lookAt(scene.position);
 
+
   //////////////
   // renderer //
   //////////////
@@ -67,10 +69,13 @@ function init() {
   renderer.setSize ( window.innerWidth, window.innerHeight );
   document.body.appendChild( renderer.domElement );
 
-  var axes = new THREE.AxisHelper(100);
+  orbitControls = new OrbitControls( camera, renderer.domElement );
+
+  var axes = new THREE.AxesHelper(100);
   scene.add(axes);
 
   controls = initControls(scene, camera);
+    orbitControls.update();
   initSkybox(scene);
   initLights(scene);
   initFloor(scene);
@@ -151,7 +156,9 @@ function animate() {
     if ( controlsEnabled ) {
         controlsAnimate(controls);
     }
+    // Compute boids mesh positions
     GPUCompute(birdMesh.material.uniforms);
+    orbitControls.update();
     render();
 }
 

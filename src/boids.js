@@ -1,11 +1,13 @@
-//import * as THREE from 'three';
-import "./birdgeometry.js";
+import * as THREE from 'three';
+import BirdGeometry from "./birdgeometry.js";
+import vertexShader from "./shaders/bird.vs";
+import fragmentShader from "./shaders/bird.fs";
 
-const vertexShader = require('raw-loader!glslify-loader!./shaders/bird.vs');
-const fragmentShader = require('raw-loader!glslify-loader!./shaders/bird.fs');
+//const vertexShader = require('raw-loader!glslify-loader!./shaders/bird.vs');
+//const fragmentShader = require('raw-loader!glslify-loader!./shaders/bird.fs');
 
 export const initBoids = (scene) => {
-    var geometry = new THREE.BirdGeometry();
+    var geometry = new BirdGeometry();
     // For Vertex and Fragment
     var birdUniforms = {
         color: { type: "c", value: new THREE.Color( 0xff2200 ) },

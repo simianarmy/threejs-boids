@@ -2,7 +2,6 @@ const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CleanWebpackPlugin = require('clean-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
-const HtmlWebpackExternalsPlugin = require('html-webpack-externals-plugin');
 
 module.exports = {
     entry: './src/index.js',
@@ -32,29 +31,18 @@ module.exports = {
             {
                 test: /\.js$/,
                     loader: 'babel-loader',
-                    query: {
-                        presets: ['es2015']
-                    }
+            },
+            {
+                test: /\.(vs|fs)$/,
+                type: 'asset/source',
             },
         ]
     },
     plugins: [
-        new CleanWebpackPlugin(['dist']),
+        //new CleanWebpackPlugin(['dist']),
         new HtmlWebpackPlugin({
             title: 'Development',
             template: 'src/index.html'
         }),
-      //new CopyWebpackPlugin(
-        //[{from: './vendor', to: 'vendor/'}]
-      //),
-      new HtmlWebpackExternalsPlugin({
-        externals: [
-          {
-            module: 'three.terrain.js',
-            entry: 'build/THREE.Terrain.min.js',
-            global: 'THREE',
-          },
-        ],
-      })
     ]
 };

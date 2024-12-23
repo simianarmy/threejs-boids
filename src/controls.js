@@ -1,6 +1,9 @@
 ///////////////
 // controls ///
 ///////////////
+import * as THREE from 'three';
+import { PointerLockControls } from 'three/addons/controls/PointerLockControls.js';
+
 export var controlsEnabled = false;
 
 var velocity = new THREE.Vector3();
@@ -45,8 +48,8 @@ export const initControls = (scene, camera) => {
     instructions.innerHTML = 'Your browser doesn\'t seem to support Pointer Lock API';
   }
 
-  const controls = new THREE.PointerLockControls( camera );
-  scene.add( controls.getObject() );
+  const controls = new PointerLockControls( camera );
+  scene.add(controls.object);
 
   controls.moveForward = false;
   controls.moveBackward = false;
@@ -110,8 +113,8 @@ export const animate = (controls) => {
     direction.normalize(); // this ensures consistent movements in all directions
     if ( controls.moveForward || controls.moveBackward ) velocity.z -= direction.z * 400.0 * delta;
     if ( controls.moveLeft || controls.moveRight ) velocity.x -= direction.x * 400.0 * delta;
-    controls.getObject().translateX( velocity.x * delta );
-    controls.getObject().translateY( velocity.y * delta );
-    controls.getObject().translateZ( velocity.z * delta );
+    controls.object.translateX( velocity.x * delta );
+    controls.object.translateY( velocity.y * delta );
+    controls.object.translateZ( velocity.z * delta );
     prevTime = time;
 };
