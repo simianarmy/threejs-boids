@@ -1,3 +1,5 @@
+import * as THREE from 'three';
+
 export const initLights = (scene) => {
   let skyLight = new THREE.DirectionalLight(0xe8bdb0, 1.5);
   skyLight.position.set(2950, 2625, -160); // Sun on the sky texture

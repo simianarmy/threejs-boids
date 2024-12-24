@@ -1,7 +1,11 @@
 /**
  * All things GPUComputationRenderer here for my education
  */
+import * as THREE from 'three';
+import { GPUComputationRenderer } from "three/examples/jsm/misc/GPUComputationRenderer.js";
 import { BOUNDS, BOUNDS_HALF } from './globals.js';
+import velocityFragmentShader from './shaders/boid_velocity.fs';
+import positionFragmentShader from './shaders/boid_position.fs';
 
 var gpuCompute;
 var velocityVariable;
@@ -10,8 +14,8 @@ var positionUniforms;
 var velocityUniforms;
 var last = performance.now();
 
-const velocityFragmentShader = require('raw-loader!glslify-loader!./shaders/boid_velocity.fs');
-const positionFragmentShader = require('raw-loader!glslify-loader!./shaders/boid_position.fs');
+//const velocityFragmentShader = require('raw-loader!glslify-loader!./shaders/boid_velocity.fs');
+//const positionFragmentShader = require('raw-loader!glslify-loader!./shaders/boid_position.fs');
 
 export const initGPUComputeRenderer = (width, height, renderFn) => {
   gpuCompute = new GPUComputationRenderer( width, height, renderFn)
