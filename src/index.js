@@ -80,37 +80,39 @@ async function init() {
   const world = new RAPIER.World(gravity)
   const dynamicBodies = []
 
-  // Create the collider for the ground
-  const floorBody = world.createRigidBody(RAPIER.RigidBodyDesc.dynamic().setTranslation(0, -1, 0).setCanSleep(false))
-  const floorGeo = terrain.getScene().children[0].geometry;
-  const vertices = new Float32Array(floorGeo.attributes.position.array)
-  let indices = new Uint32Array(floorGeo.index.array)
-  const floorShape = RAPIER.ColliderDesc.trimesh(vertices, indices).setMass(1).setRestitution(1.1)
-  world.createCollider(floorShape, floorBody)
+  // Create the collider for the terrain
+  const terrainBody = world.createRigidBody(RAPIER.RigidBodyDesc.fixed().setTranslation(0, -1, 0).setCanSleep(false))
+  const terrainGeo = terrain.getScene().children[0].geometry;
+  const vertices = new Float32Array(terrainGeo.attributes.position.array)
+  let indices = new Uint32Array(terrainGeo.index.array)
+  const terrainShape = RAPIER.ColliderDesc.trimesh(vertices, indices).setMass(1).setRestitution(1.1)
+  world.createCollider(terrainShape, terrainBody)
 
   // Add the boids mesh to the physics world
-  const birdBody = world.createRigidBody(RAPIER.RigidBodyDesc.dynamic().setTranslation(0, 5, 0).setCanSleep(false))
-  const points = new Float32Array(birdMesh.geometry.attributes.position.array)
-  const birdShape = RAPIER.ColliderDesc.convexHull(points).setMass(1).setRestitution(1.1)
-
-  world.createCollider(birdShape, birdBody)
-  dynamicBodies.push([birdMesh, birdBody])
+  //const birdBody = world.createRigidBody(RAPIER.RigidBodyDesc.dynamic().setTranslation(0, 5, 0).setCanSleep(false))
+  //const points = new Float32Array(birdMesh.geometry.attributes.position.array)
+  //const birdShape = RAPIER.ColliderDesc.convexHull(points).setMass(1).setRestitution(1.1)
+  //world.createCollider(birdShape, birdBody)
+  //dynamicBodies.push([birdMesh, birdBody])
 
   // Ball Collider
   const sphereMesh = new THREE.Mesh(new THREE.SphereGeometry(), new THREE.MeshNormalMaterial())
   sphereMesh.castShadow = true
   scene.add(sphereMesh)
-  const sphereBody = world.createRigidBody(RAPIER.RigidBodyDesc.dynamic().setTranslation(-2.5, 10, 0).setCanSleep(false))
+  const sphereBody = world.createRigidBody(RAPIER.RigidBodyDesc.dynamic().setTranslation(-2.5, 25, 0).setCanSleep(false))
   const sphereShape = RAPIER.ColliderDesc.ball(1).setMass(1).setRestitution(1.1)
   world.createCollider(sphereShape, sphereBody)
   dynamicBodies.push([sphereMesh, sphereBody])
 
-  const icosahedronBody = world.createRigidBody(RAPIER.RigidBodyDesc.dynamic().setTranslation(2, 5, 0).setCanSleep(false))
-// const points = new Float32Array(icosahedronMesh.geometry.attributes.position.array)
-// const icosahedronShape = (RAPIER.ColliderDesc.convexHull(points) as RAPIER.ColliderDesc).setMass(1).setRestitution(1.1)
-// world.createCollider(icosahedronShape, icosahedronBody)
-// dynamicBodies.push([icosahedronMesh, icosahedronBody])
-  //
+  // Debug ground collider
+  const floorMesh = new THREE.Mesh(new THREE.BoxGeometry(300, 1, 300), new THREE.MeshPhongMaterial())
+  floorMesh.receiveShadow = true
+  floorMesh.position.y = -1
+  scene.add(floorMesh)
+  const floorBody = world.createRigidBody(RAPIER.RigidBodyDesc.fixed().setTranslation(0, -1, 0))
+  const floorShape = RAPIER.ColliderDesc.cuboid(50, 0.5, 50)
+  world.createCollider(floorShape, floorBody)
+
   console.log(`z=${cameraZ} width=${visibleWidthAtZDepth(cameraZ, camera)} height=${visibleHeightAtZDepth(cameraZ, camera)}`);
 
   let { positionUniforms, velocityUniforms } = initGPUComputeRenderer(WIDTH, WIDTH, renderer);
@@ -200,15 +202,15 @@ async function init() {
   }
 
   function animate() {
+    delta = clock.getDelta()
+    world.timestep = Math.min(delta, 0.1)
+    world.step()
+
     if ( controlsEnabled ) {
       controlsAnimate(controls);
     }
     // Compute boids mesh positions
     GPUCompute(birdMesh.material.uniforms);
-
-    delta = clock.getDelta()
-    world.timestep = Math.min(delta, 0.1)
-    world.step()
 
     for (let i = 0, n = dynamicBodies.length; i < n; i++) {
       dynamicBodies[i][0].position.copy(dynamicBodies[i][1].translation())
