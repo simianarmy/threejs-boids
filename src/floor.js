@@ -18,10 +18,10 @@ const xSize = WORLD_WIDTH, ySize = WORLD_WIDTH;
  */
 export const getHeightMap = (scene) => {
   let terrainScene = scene.getObjectByName('Terrain');
-    if (!terrainScene) {
-        console.log('No terrain found');
-        return;
-    }
+  if (!terrainScene) {
+    console.log('No terrain found');
+    return;
+  }
   // create heightmap canvas
   // Append to your document body to view; right click to save as a PNG image.
   // Note: doesn't work if you generated the terrain with
@@ -41,7 +41,7 @@ export const getHeightMap = (scene) => {
   */
 };
 
-export const initFloor = (scene) => {
+export async function initFloor(scene) {
 
   let terrain, blend;
     /*
@@ -118,43 +118,40 @@ export const initFloor = (scene) => {
 	// Load ground material textures
   let loader = new THREE.TextureLoader();
 
-  loader.load(sandImg, function(t1) {
-    t1.wrapS = t1.wrapT = THREE.RepeatWrapping;
-    /*
-    let sand = new THREE.Mesh(
-      new THREE.PlaneBufferGeometry(16384+1024, 16384+1024, 64, 64),
-      new THREE.MeshLambertMaterial({map: t1})
-    );
-    sand.position.y = -59;
-    sand.rotation.x = -0.5 * Math.PI;
-    scene.add(sand);
-    */
+  return new Promise(resolve => {
+    loader.load(sandImg, function(t1) {
+      t1.wrapS = t1.wrapT = THREE.RepeatWrapping;
+      /*
+        let sand = new THREE.Mesh(
+          new THREE.PlaneBufferGeometry(16384+1024, 16384+1024, 64, 64),
+          new THREE.MeshLambertMaterial({map: t1})
+        );
+      sand.position.y = -59;
+      sand.rotation.x = -0.5 * Math.PI;
+      scene.add(sand);
+      */
 
-		// Use this for ground texture until img textures code works
-    let gray = new THREE.MeshPhongMaterial({ color: 0x88aaaa, specular: 0x444455, shininess: 10 });
+        // Use this for ground texture until img textures code works
+      let gray = new THREE.MeshPhongMaterial({ color: 0x88aaaa, specular: 0x444455, shininess: 10 });
+      //regenerate(gray);
 
-    regenerate(gray);
+      loader.load(grassImg, function(t2) {
+        loader.load(stoneImg, function(t3) {
+          loader.load(snowImg, function(t4) {
+            // t2.repeat.x = t2.repeat.y = 2;
+            let blend = Terrain.generateBlendedMaterial([
+              {texture: t1},
+              {texture: t2, levels: [-80, -35, 20, 50]},
+              {texture: t3, levels: [20, 50, 60, 85]},
+              {texture: t4, glsl: '1.0 - smoothstep(65.0 + smoothstep(-256.0, 256.0, vPosition.x) * 10.0, 80.0, vPosition.z)'},
+              {texture: t3, glsl: 'slope > 0.7853981633974483 ? 0.2 : 1.0 - smoothstep(0.47123889803846897, 0.7853981633974483, slope) + 0.2'}, // between 27 and 45 degrees
+            ]);
 
-    /* the code below causes a shader error.  something about a lighting
-     * uniform value...
-     *
-    loader.load(grassImg, function(t2) {
-      loader.load(stoneImg, function(t3) {
-        loader.load(snowImg, function(t4) {
-          // t2.repeat.x = t2.repeat.y = 2;
-          let blend = Terrain.generateBlendedMaterial([
-            {texture: t1},
-            {texture: t2, levels: [-80, -35, 20, 50]},
-            {texture: t3, levels: [20, 50, 60, 85]},
-            {texture: t4, glsl: '1.0 - smoothstep(65.0 + smoothstep(-256.0, 256.0, vPosition.x) * 10.0, 80.0, vPosition.z)'},
-            {texture: t3, glsl: 'slope > 0.7853981633974483 ? 0.2 : 1.0 - smoothstep(0.47123889803846897, 0.7853981633974483, slope) + 0.2'}, // between 27 and 45 degrees
-          ]);
-
-          regenerate(blend);
+            return resolve(regenerate(blend));
+          });
         });
       });
     });
-    */
   });
-};
+}
 
