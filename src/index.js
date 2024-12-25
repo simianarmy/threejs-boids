@@ -1,5 +1,7 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import RAPIER from '@dimforge/rapier3d-compat'
+import GUI from 'three/addons/libs/lil-gui.module.min.js'
 import { initSkybox } from './skybox.js';
 import { initFloor, getHeightMap } from './floor.js';
 import { initLights } from './lights.js';
@@ -9,9 +11,6 @@ import { controlsEnabled,
     animate as controlsAnimate } from './controls.js';
 import { initGPUComputeRenderer, GPUCompute } from './gpucomputer.js';
 import { WORLD_WIDTH, WIDTH } from './globals.js';
-
-let scene, camera, renderer, controls, orbitControls, birdMesh;
-let screenCenterX, screenCenterY;
 
 // Helpers to get scene bounds
 const visibleHeightAtZDepth = ( depth, camera ) => {
@@ -32,30 +31,19 @@ const visibleWidthAtZDepth = ( depth, camera ) => {
   return height * camera.aspect;
 };
 
-function onWindowResize() {
-  screenCenterX = window.innerWidth / 2;
-  screenCenterY = window.innerHeight / 2;
+await init();
 
-  camera.aspect = window.innerWidth / window.innerHeight;
-  camera.updateProjectionMatrix();
-
-  renderer.setSize( window.innerWidth, window.innerHeight );
-}
-
-init();
-animate();
-
-function init() {
+async function init() {
 
   const cameraZ = 350;
-
-  scene = new THREE.Scene();
+  let screenCenterX, screenCenterY;
+  let scene = new THREE.Scene();
   //scene.fog = new THREE.FogExp2(0x868293, 0.0007);
 
   ////////////
   // camera //
   ////////////
-  camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 100, WORLD_WIDTH);
+  let camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 100, WORLD_WIDTH);
   camera.position.set(0, 100, cameraZ);
   //camera.up.set( 0, 1, 0);
   //camera.lookAt(scene.position);
@@ -64,22 +52,66 @@ function init() {
   //////////////
   // renderer //
   //////////////
-  renderer = new THREE.WebGLRenderer();
+  let renderer = new THREE.WebGLRenderer( {antialias: true} );
   renderer.setPixelRatio( window.devicePixelRatio );
   renderer.setSize ( window.innerWidth, window.innerHeight );
+  renderer.shadowMap.enabled = true;
+
   document.body.appendChild( renderer.domElement );
 
-  orbitControls = new OrbitControls( camera, renderer.domElement );
+  let orbitControls = new OrbitControls( camera, renderer.domElement );
+  orbitControls.enableZoom = false;
+  orbitControls.enableDamping = true;
+  orbitControls.target.y = 1;
 
   var axes = new THREE.AxesHelper(100);
   scene.add(axes);
 
-  controls = initControls(scene, camera);
-    orbitControls.update();
+  let controls = initControls(scene, camera);
+  orbitControls.update();
   initSkybox(scene);
   initLights(scene);
-  initFloor(scene);
-  birdMesh = initBoids(scene);
+  let terrain = await initFloor(scene);
+  let birdMesh = initBoids(scene);
+  console.log('Bird mesh', birdMesh);
+
+  await RAPIER.init() // This line is only needed if using the compat version
+  const gravity = new RAPIER.Vector3(0.0, -9.81, 0.0)
+  const world = new RAPIER.World(gravity)
+  const dynamicBodies = []
+
+  // Create the collider for the terrain
+  const terrainBody = world.createRigidBody(RAPIER.RigidBodyDesc.fixed().setTranslation(0, -1, 0).setCanSleep(false))
+  const terrainGeo = terrain.getScene().children[0].geometry;
+  const vertices = new Float32Array(terrainGeo.attributes.position.array)
+  let indices = new Uint32Array(terrainGeo.index.array)
+  const terrainShape = RAPIER.ColliderDesc.trimesh(vertices, indices).setMass(1).setRestitution(1.1)
+  world.createCollider(terrainShape, terrainBody)
+
+  // Add the boids mesh to the physics world
+  //const birdBody = world.createRigidBody(RAPIER.RigidBodyDesc.dynamic().setTranslation(0, 5, 0).setCanSleep(false))
+  //const points = new Float32Array(birdMesh.geometry.attributes.position.array)
+  //const birdShape = RAPIER.ColliderDesc.convexHull(points).setMass(1).setRestitution(1.1)
+  //world.createCollider(birdShape, birdBody)
+  //dynamicBodies.push([birdMesh, birdBody])
+
+  // Ball Collider
+  const sphereMesh = new THREE.Mesh(new THREE.SphereGeometry(), new THREE.MeshNormalMaterial())
+  sphereMesh.castShadow = true
+  scene.add(sphereMesh)
+  const sphereBody = world.createRigidBody(RAPIER.RigidBodyDesc.dynamic().setTranslation(-2.5, 25, 0).setCanSleep(false))
+  const sphereShape = RAPIER.ColliderDesc.ball(1).setMass(1).setRestitution(1.1)
+  world.createCollider(sphereShape, sphereBody)
+  dynamicBodies.push([sphereMesh, sphereBody])
+
+  // Debug ground collider
+  const floorMesh = new THREE.Mesh(new THREE.BoxGeometry(300, 1, 300), new THREE.MeshPhongMaterial())
+  floorMesh.receiveShadow = true
+  floorMesh.position.y = -1
+  scene.add(floorMesh)
+  const floorBody = world.createRigidBody(RAPIER.RigidBodyDesc.fixed().setTranslation(0, -1, 0))
+  const floorShape = RAPIER.ColliderDesc.cuboid(50, 0.5, 50)
+  world.createCollider(floorShape, floorBody)
 
   console.log(`z=${cameraZ} width=${visibleWidthAtZDepth(cameraZ, camera)} height=${visibleHeightAtZDepth(cameraZ, camera)}`);
 
@@ -87,32 +119,50 @@ function init() {
 
   // We need to pass the heightmap texture to the shader for bird/ground
   // collision detection
-  setTimeout(() => {
-    const heightmap = getHeightMap(scene);
-    velocityUniforms.heightMap.value = heightmap;
-    console.log('Heightmap value', heightmap);
-  }, 500);
+  const heightmap = getHeightMap(scene);
+  velocityUniforms.heightMap.value = heightmap;
+  console.log('Heightmap value', heightmap);
 
   screenCenterX = window.innerWidth / 2;
   screenCenterY = window.innerHeight / 2;
   console.log('screen center x,y', screenCenterX, screenCenterY);
 
-  const onControlInput = (ev) => {
-    //console.log('separation change', ev.target.value);
-    velocityUniforms.seperationDistance.value = Number(document.querySelector('#separation').value);
-    console.log('new separation distance', velocityUniforms.seperationDistance.value);
-    velocityUniforms.alignmentDistance.value = Number(document.querySelector('#alignment').value);
-    console.log('new alignment distance', velocityUniforms.alignmentDistance.value);
-    velocityUniforms.cohesionDistance.value = Number(document.querySelector('#cohesion').value);
-    console.log('new cohesion distance', velocityUniforms.cohesionDistance.value);
-  };
-  document.querySelector('#separation').addEventListener('change', onControlInput);
-  document.querySelector('#alignment').addEventListener('change', onControlInput);
-  document.querySelector('#cohesion').addEventListener('change', onControlInput);
+  velocityUniforms.seperationDistance.value = 50;
+  velocityUniforms.alignmentDistance.value = 70;
+  velocityUniforms.cohesionDistance.value = 46;
 
   let enableWind = false;
   let forceScatter = false;
   let enablePredator = false;
+
+  const params = {
+    separation: velocityUniforms.seperationDistance.value,
+    alignment: velocityUniforms.alignmentDistance.value,
+    cohesion: velocityUniforms.cohesionDistance.value,
+    scatter: forceScatter,
+    predator: enablePredator,
+    wind: enableWind,
+  };
+
+  const gui = new GUI()
+  const physicsFolder = gui.addFolder('Boids');
+  physicsFolder.add(params, 'separation',  1., 100., 1)
+    .onChange(newValue => velocityUniforms.seperationDistance.value = newValue);
+  physicsFolder.add(params, 'alignment',  1., 100., .001)
+    .onChange(newValue => velocityUniforms.alignmentDistance.value = newValue);
+  physicsFolder.add(params, 'cohesion',  1., 100., .25)
+    .onChange(newValue => velocityUniforms.cohesionDistance.value = newValue);
+  physicsFolder.add(params, 'scatter')
+    .onChange(newValue => {
+        forceScatter = newValue;
+        velocityUniforms.scatter.value = forceScatter ? -1. : 1.;
+        console.log('Scatter value', velocityUniforms.scatter.value);
+    });
+  physicsFolder.add(params, 'predator')
+    .onChange(newValue => enablePredator = newValue);
+  physicsFolder.add(params, 'wind')
+    .onChange(newValue => enableWind = newValue);
+
   let zeroVector = new THREE.Vector3(0., 0., 0.);
 
   let windEl = document.querySelector('#windVal');
@@ -127,41 +177,51 @@ function init() {
   });
   document.addEventListener( 'keydown', function(event) {
     switch (event.keyCode) {
-      case 80: // p
-        enablePredator = !enablePredator;
-        break;
-      case 83: // s
-        forceScatter = !forceScatter;
-        velocityUniforms.scatter.value = forceScatter ? -1. : 1.;
-        console.log('Scatter value', velocityUniforms.scatter.value);
-        break;
       case 84: // t = terrain heightmap
         let img = getHeightMap(scene);
         document.body.appendChild(img);
-        break;
-      case 87: // k
-        enableWind = !enableWind;
         break;
     }
   }, false);
 
   window.addEventListener('resize', onWindowResize);
 
-  onControlInput();
-}
+  const clock = new THREE.Clock()
+  let delta;
 
-function animate() {
-    requestAnimationFrame( animate );
+  renderer.setAnimationLoop( animate );
+
+  function onWindowResize() {
+    screenCenterX = window.innerWidth / 2;
+    screenCenterY = window.innerHeight / 2;
+
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+
+    renderer.setSize( window.innerWidth, window.innerHeight );
+  }
+
+  function animate() {
+    delta = clock.getDelta()
+    world.timestep = Math.min(delta, 0.1)
+    world.step()
 
     if ( controlsEnabled ) {
-        controlsAnimate(controls);
+      controlsAnimate(controls);
     }
     // Compute boids mesh positions
     GPUCompute(birdMesh.material.uniforms);
+
+    for (let i = 0, n = dynamicBodies.length; i < n; i++) {
+      dynamicBodies[i][0].position.copy(dynamicBodies[i][1].translation())
+      dynamicBodies[i][0].quaternion.copy(dynamicBodies[i][1].rotation())
+    }
     orbitControls.update();
     render();
-}
+  }
 
-function render() {
+
+  function render() {
     renderer.render(scene, camera);
+  }
 }

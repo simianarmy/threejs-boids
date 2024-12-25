@@ -25,6 +25,7 @@
   },
   "homepage": "https://github.com/simianarmy/threejs-boids#readme",
   "devDependencies": {
+    "@dimforge/rapier3d-compat": "^0.14.0",
     "babel-core": "*",
     "babel-loader": "*",
     "babel-preset-env": "*",
