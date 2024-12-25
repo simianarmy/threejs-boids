@@ -80,6 +80,7 @@ async function init() {
   const world = new RAPIER.World(gravity)
   const dynamicBodies = []
 
+  // Create the collider for the ground
   const floorBody = world.createRigidBody(RAPIER.RigidBodyDesc.dynamic().setTranslation(0, -1, 0).setCanSleep(false))
   const floorGeo = terrain.getScene().children[0].geometry;
   const vertices = new Float32Array(floorGeo.attributes.position.array)
@@ -87,6 +88,29 @@ async function init() {
   const floorShape = RAPIER.ColliderDesc.trimesh(vertices, indices).setMass(1).setRestitution(1.1)
   world.createCollider(floorShape, floorBody)
 
+  // Add the boids mesh to the physics world
+  const birdBody = world.createRigidBody(RAPIER.RigidBodyDesc.dynamic().setTranslation(0, 5, 0).setCanSleep(false))
+  const points = new Float32Array(birdMesh.geometry.attributes.position.array)
+  const birdShape = RAPIER.ColliderDesc.convexHull(points).setMass(1).setRestitution(1.1)
+
+  world.createCollider(birdShape, birdBody)
+  dynamicBodies.push([birdMesh, birdBody])
+
+  // Ball Collider
+  const sphereMesh = new THREE.Mesh(new THREE.SphereGeometry(), new THREE.MeshNormalMaterial())
+  sphereMesh.castShadow = true
+  scene.add(sphereMesh)
+  const sphereBody = world.createRigidBody(RAPIER.RigidBodyDesc.dynamic().setTranslation(-2.5, 10, 0).setCanSleep(false))
+  const sphereShape = RAPIER.ColliderDesc.ball(1).setMass(1).setRestitution(1.1)
+  world.createCollider(sphereShape, sphereBody)
+  dynamicBodies.push([sphereMesh, sphereBody])
+
+  const icosahedronBody = world.createRigidBody(RAPIER.RigidBodyDesc.dynamic().setTranslation(2, 5, 0).setCanSleep(false))
+// const points = new Float32Array(icosahedronMesh.geometry.attributes.position.array)
+// const icosahedronShape = (RAPIER.ColliderDesc.convexHull(points) as RAPIER.ColliderDesc).setMass(1).setRestitution(1.1)
+// world.createCollider(icosahedronShape, icosahedronBody)
+// dynamicBodies.push([icosahedronMesh, icosahedronBody])
+  //
   console.log(`z=${cameraZ} width=${visibleWidthAtZDepth(cameraZ, camera)} height=${visibleHeightAtZDepth(cameraZ, camera)}`);
 
   let { positionUniforms, velocityUniforms } = initGPUComputeRenderer(WIDTH, WIDTH, renderer);
