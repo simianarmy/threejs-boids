@@ -2,9 +2,9 @@ import * as THREE from 'three';
 import { WIDTH, NUM_BIRDS } from './globals';
 
 // Custom Geometry - using 3 triangles each. No UVs, no normals currently.
-// @inherits {THREE.BufferGeometry}
+  // @inherits {THREE.BufferGeometry}
 //
-class  BirdGeometry extends THREE.BufferGeometry
+  class  BirdGeometry extends THREE.BufferGeometry
 {
   count = NUM_BIRDS;
 

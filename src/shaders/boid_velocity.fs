@@ -21,13 +21,14 @@ const float PI = 3.141592653589793;
 const float PI_2 = PI * 2.0;
 
 const float SPEED_LIMIT = 9.0;
-const float xMin = -1500.0;
-const float xMax = 1500.0;
-const float heightFromGroundMin = 50.0;
+// Where are these bounds from?
+const float xMin = -3000.0;
+const float xMax = 3000.0;
 const float yMax = 1000.0;
 const float zMin = -300.0;
 const float zMax = 330.0;
-const float boundOffset = 10.0;
+const float boundOffset = 10.0; // does what?
+const float heightFromGroundMin = 20.0;
 
 float zoneRadius, zoneRadiusSquared;
 float separationThreshold;
@@ -36,7 +37,25 @@ float rand(vec2 co){
   return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453);
 }
 
-vec3 bound_position(vec3 b, float yMin) {
+vec3 bound_xz(vec3 b) {
+  vec3 v = vec3(0., 0., 0.);
+
+  if (b.x <= xMin) {
+    v.x = boundOffset;
+  } else if (b.x >= xMax) {
+    v.x = -boundOffset;
+  }
+
+  if (b.z <= zMin) {
+    v.z = boundOffset;
+  } else if (b.z >= zMax) {
+    v.z = -boundOffset;
+  }
+
+  return v;
+}
+
+vec3 bound_height(vec3 b, float yMin) {
   vec3 v = vec3(.0, .0, .0);
 
   if (b.x < xMin) {
@@ -70,9 +89,10 @@ void main() {
   vec3 selfPosition = texture2D( texturePosition, uv ).xyz;
   vec3 selfVelocity = texture2D( textureVelocity, uv ).xyz;
 
-  // get terrain height at this position
+  // get terrain height at this position - is this right??
   float groundPos = texture2D(heightMap, uv).y;
-  float groundHeight = (groundPos / 255.0 * 300.0 + 100.0) + 5.0;
+  //float groundHeight = (groundPos / 255.0 * 300.0 + 100.0) + 5.0;
+  float groundHeight = (groundPos / 255.0 * 100.);
 
   vec3 velocity = selfVelocity;
   vec3 centerMass = vec3(.0, .0, .0);
@@ -150,7 +170,17 @@ void main() {
   }
 
   // Ground & bounds collision detection
-  velocity += bound_position(selfPosition, groundHeight + heightFromGroundMin) * delta;
+  //velocity *= bound_height(selfPosition, groundHeight + heightFromGroundMin) * delta;
+  // x/z bounds
+  velocity += bound_xz(selfPosition) * delta;
+
+  if (groundPos == 0.) {
+    //velocity.y = 0.0;
+  }
+  if (selfPosition.y < groundHeight) {
+    velocity.y = -velocity.y * delta;
+    //velocity.y = 0.;
+  }
 
   // Speed Limits
   if ( length( velocity ) > speedLimit ) {
